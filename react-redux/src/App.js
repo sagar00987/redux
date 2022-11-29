@@ -1,25 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import loader from "./assets/loader.gif";
+import UserService from "./actions/Userservice";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export const UserComponent = () => {
+  const dispatch = useDispatch();
 
-export default App;
+  const usersInfo = useSelector((state) => state.userData);
+  console.log(usersInfo);
+
+  useEffect(() => {
+    UserService.loadUsers(dispatch);
+  }, [dispatch]);
+
+  const errorContainer = () => {
+    return <div>ERROR IN API</div>;
+  };
+  const showLoader = () => {
+    return (
+      <div>
+        <img src={loader} alt="loading ..." title="loading ..." />
+      </div>
+    );
+  };
+
+  const renderData = (usersInfo) => {
+   
+    return usersInfo.error ? (
+      errorContainer()
+    ) : (
+      <div className="container">
+        <div className="header">
+          <div>NAME</div>
+          <div>EMAIL</div>
+          <div>PHONE</div>
+          <div>WEBSITE</div>
+        </div>
+        {usersInfo.userList.map((user, index) => (
+          <div className="row" key={index}>
+            <div> {user.name} </div>
+            <div>{user.email}</div>
+            <div>{user.phone} </div>
+            <div>{user.website} </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return usersInfo.loading ? showLoader() : renderData(usersInfo);
+};
+
+export default UserComponent;
